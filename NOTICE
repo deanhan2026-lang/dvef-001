@@ -1,0 +1,13 @@
+DVEF-001 判定依据格式（草案）
+Copyright (c) 2026 灵元星辰科技（深圳）有限公司 / ANIMASTELLAR TECHNOLOGY (SHENZHEN) CO., LTD.
+
+许可分层：
+- 代码文件（*.py / *.mjs / *.sh / *.cmd）：MIT（见 LICENSE）
+- 规范文本与样本库（*.md / *.json）：Creative Commons Attribution 4.0 International (CC BY 4.0)
+  https://creativecommons.org/licenses/by/4.0/
+
+引用时请注明：
+  DVEF-001 Deterministic Verdict Evidence Format v0.3 (draft), ANIMASTELLAR,
+  https://github.com/deanhan2026-lang/dvef-001
+
+本仓库为提案草案，不代表任何标准组织已采纳；文中出现的标准名称仅用于说明适用场景。

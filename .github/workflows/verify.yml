@@ -1,0 +1,33 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  recompute:
+    name: 独立复算 + 反向测试 + 清单自校验
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 第 0 步 · 清单自校验
+        run: sha256sum -c MANIFEST.sha256
+
+      - name: Python 复算（样本库 v0.2，含反向测试）
+        run: python verify_stdlib.py --vectors vectors_v0.2.json --reverse
+
+      - name: Python 复算（样本库 v0.1，版本协商）
+        run: python verify_stdlib.py --vectors vectors_v0.1.json --reverse
+
+      - name: Node 复算（第二语言交叉核对）
+        run: node verify_vectors_node.mjs --vectors vectors_v0.2.json --reverse

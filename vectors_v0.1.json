@@ -1,0 +1,1007 @@
+{
+  "spec": "DVEF-001",
+  "spec_version": "0.1",
+  "title": "确定性判定依据格式 · 正负样本库",
+  "generated_by": "gen_vectors.py (Python 3.14.3)",
+  "categories": {
+    "canonical": "CL0 规范化 JSON 逐字节一致（RFC 8785 子集 + ES Number::toString）",
+    "digest": "CL1 证据摘要一致（SHA-256 over canonical JSON）",
+    "verdict": "CL2 判定结果与分数一致（5 条规则，缺字段禁止 PASS）",
+    "signature": "CL3 Ed25519 签名，域分隔 DOMAIN||0x00||SHA256(payload)",
+    "negative": "负样本：任一篡改都必须被检出"
+  },
+  "counts": {
+    "canonical": 19,
+    "digest": 8,
+    "verdict": 13,
+    "signature": 9,
+    "negative": 10,
+    "total": 59
+  },
+  "vectors": [
+    {
+      "id": "A01",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "键序递归排序",
+      "input": {
+        "z": 1,
+        "a": 2,
+        "m": {
+          "b": 3,
+          "a": 4
+        }
+      },
+      "expected": {
+        "canonical": "{\"a\":2,\"m\":{\"a\":4,\"b\":3},\"z\":1}"
+      }
+    },
+    {
+      "id": "A02",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "紧凑无空白",
+      "input": {
+        "key": "value",
+        "nested": {
+          "a": 1
+        }
+      },
+      "expected": {
+        "canonical": "{\"key\":\"value\",\"nested\":{\"a\":1}}"
+      }
+    },
+    {
+      "id": "A03",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "数值 1.0 → 1",
+      "input": {
+        "v": 1.0
+      },
+      "expected": {
+        "canonical": "{\"v\":1}"
+      }
+    },
+    {
+      "id": "A04",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "数值 -0.0 → 0",
+      "input": {
+        "v": -0.0
+      },
+      "expected": {
+        "canonical": "{\"v\":0}"
+      }
+    },
+    {
+      "id": "A05",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "1e20 走十进制",
+      "input": {
+        "v": 1e+20
+      },
+      "expected": {
+        "canonical": "{\"v\":100000000000000000000}"
+      }
+    },
+    {
+      "id": "A06",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "1e21 走科学计数且指数带 +",
+      "input": {
+        "v": 1e+21
+      },
+      "expected": {
+        "canonical": "{\"v\":1e+21}"
+      }
+    },
+    {
+      "id": "A07",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "1e22 指数带 +",
+      "input": {
+        "v": 1e+22
+      },
+      "expected": {
+        "canonical": "{\"v\":1e+22}"
+      }
+    },
+    {
+      "id": "A08",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "1e-6 走十进制",
+      "input": {
+        "v": 1e-06
+      },
+      "expected": {
+        "canonical": "{\"v\":0.000001}"
+      }
+    },
+    {
+      "id": "A09",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "1e-7 走科学计数",
+      "input": {
+        "v": 1e-07
+      },
+      "expected": {
+        "canonical": "{\"v\":1e-7}"
+      }
+    },
+    {
+      "id": "A10",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "双精度极值 1.7976931348623157e308",
+      "input": {
+        "v": 1.7976931348623157e+308
+      },
+      "expected": {
+        "canonical": "{\"v\":1.7976931348623157e+308}"
+      }
+    },
+    {
+      "id": "A11",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "最小次正规 5e-324",
+      "input": {
+        "v": 5e-324
+      },
+      "expected": {
+        "canonical": "{\"v\":5e-324}"
+      }
+    },
+    {
+      "id": "A12",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "Unicode 不转义（中文原样）",
+      "input": {
+        "名称": "灵元",
+        "值": 1
+      },
+      "expected": {
+        "canonical": "{\"值\":1,\"名称\":\"灵元\"}"
+      }
+    },
+    {
+      "id": "A13",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "控制字符必须转义",
+      "input": {
+        "v": "a\tb\nc"
+      },
+      "expected": {
+        "canonical": "{\"v\":\"a\\tb\\nc\"}"
+      }
+    },
+    {
+      "id": "A14",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "空容器",
+      "input": {
+        "a": [],
+        "o": {},
+        "n": null,
+        "t": true,
+        "f": false
+      },
+      "expected": {
+        "canonical": "{\"a\":[],\"f\":false,\"n\":null,\"o\":{},\"t\":true}"
+      }
+    },
+    {
+      "id": "A15",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "数组保持顺序（不排序）",
+      "input": {
+        "arr": [
+          3,
+          1,
+          2
+        ]
+      },
+      "expected": {
+        "canonical": "{\"arr\":[3,1,2]}"
+      }
+    },
+    {
+      "id": "A16",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "键序按 UTF-16 码元：astral 字符排在 U+E000 之前",
+      "input": {
+        "𐀀": 1,
+        "": 2
+      },
+      "expected": {
+        "canonical": "{\"𐀀\":1,\"\":2}"
+      }
+    },
+    {
+      "id": "A17",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "键序：U+E000 与 U+FFFD 相对位置",
+      "input": {
+        "�": 1,
+        "": 2
+      },
+      "expected": {
+        "canonical": "{\"\":2,\"�\":1}"
+      }
+    },
+    {
+      "id": "A18",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "键序：emoji 键（代理对）与 BMP 私用区",
+      "input": {
+        "": 1,
+        "😀": 2
+      },
+      "expected": {
+        "canonical": "{\"😀\":2,\"\":1}"
+      }
+    },
+    {
+      "id": "A19",
+      "category": "canonical",
+      "level": "CL0",
+      "description": "孤立代理项不得被静默接受（非键，仅值）",
+      "input": {
+        "v": "ok",
+        "k": 1
+      },
+      "expected": {
+        "canonical": "{\"k\":1,\"v\":\"ok\"}"
+      }
+    },
+    {
+      "id": "B01",
+      "category": "digest",
+      "level": "CL1",
+      "description": "证据件 inputs 摘要（历史样本，须与既有实现一致）",
+      "input": {
+        "behavior": "aggressive",
+        "resource_access": "unauthorized"
+      },
+      "expected": {
+        "digest": "788cfcca0bbf86af93ea890a29f141f15d40320d84209c99545a11ce0d3e3b80"
+      }
+    },
+    {
+      "id": "B02",
+      "category": "digest",
+      "level": "CL1",
+      "description": "判定参数摘要",
+      "input": {
+        "threshold": 1.5,
+        "window_sec": 300,
+        "baseline_id": "b-001"
+      },
+      "expected": {
+        "digest": "85860fe8ae40a1d5cbc2a2cf3a9cc83a07f48442b311d651b27dc7aca3e508b1"
+      }
+    },
+    {
+      "id": "B03",
+      "category": "digest",
+      "level": "CL1",
+      "description": "判定输出摘要",
+      "input": {
+        "verdict": "FAIL",
+        "score": 1.5,
+        "rule_id": "R-DRIFT-THRESHOLD"
+      },
+      "expected": {
+        "digest": "070d414afa1adca62e35ac4520ca25e373119de9d6f9f76a62cf881be95401e9"
+      }
+    },
+    {
+      "id": "B04",
+      "category": "digest",
+      "level": "CL1",
+      "description": "含中文与 emoji 的摘要",
+      "input": {
+        "note": "越权调用被拦下 🚫",
+        "count": 3
+      },
+      "expected": {
+        "digest": "74b1e93953477c02248760ae81a7ba337d07852c3a9fcb4a18449c2bc04795d1"
+      }
+    },
+    {
+      "id": "B05",
+      "category": "digest",
+      "level": "CL1",
+      "description": "含科学计数字段",
+      "input": {
+        "score": 1e+21,
+        "ratio": 1e-07
+      },
+      "expected": {
+        "digest": "26b09c739ac0c190d361d9a01aa067cfc72bd9cbe48a3441c66d0f0825c1a7e0"
+      }
+    },
+    {
+      "id": "B06",
+      "category": "digest",
+      "level": "CL1",
+      "description": "嵌套 4 层",
+      "input": {
+        "a": {
+          "b": {
+            "c": {
+              "d": [
+                1,
+                2,
+                {
+                  "e": "f"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "digest": "b78bda60d2c8b96f17369a011ecfd2260332167cdd80964d5131060bdc3e1d92"
+      }
+    },
+    {
+      "id": "B07",
+      "category": "digest",
+      "level": "CL1",
+      "description": "null 与布尔混合",
+      "input": {
+        "ok": true,
+        "flag": false,
+        "missing": null
+      },
+      "expected": {
+        "digest": "71add58e5a95ca882768842bab0947939a00d7f05b16458370dc53b7d3b061b6"
+      }
+    },
+    {
+      "id": "B08",
+      "category": "digest",
+      "level": "CL1",
+      "description": "空对象摘要",
+      "input": {},
+      "expected": {
+        "digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "id": "C01",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "漂移分数 2.0 超阈 1.5",
+      "rule_id": "R-DRIFT-THRESHOLD",
+      "rule_version": "1.0.0",
+      "params": {
+        "threshold": 1.5
+      },
+      "input": {
+        "score": 2.0
+      },
+      "expected": {
+        "verdict": "FAIL",
+        "score": 2.0,
+        "output_digest": "6f64144f9dd83c75779a6952fe2150d4362bf613d6f43b2ff7b2eb6fac555421"
+      }
+    },
+    {
+      "id": "C02",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "漂移分数 1.5 等于阈（严格大于才 FAIL）",
+      "rule_id": "R-DRIFT-THRESHOLD",
+      "rule_version": "1.0.0",
+      "params": {
+        "threshold": 1.5
+      },
+      "input": {
+        "score": 1.5
+      },
+      "expected": {
+        "verdict": "PASS",
+        "score": 1.5,
+        "output_digest": "aa92332f02e909204bffbd45cf0d4180e8b204e2a40a520c24042dc2cd3e3c5e"
+      }
+    },
+    {
+      "id": "C03",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "漂移分数 0.5 未超阈",
+      "rule_id": "R-DRIFT-THRESHOLD",
+      "rule_version": "1.0.0",
+      "params": {
+        "threshold": 1.5
+      },
+      "input": {
+        "score": 0.5
+      },
+      "expected": {
+        "verdict": "PASS",
+        "score": 0.5,
+        "output_digest": "d4e223853b829e69e52b7bdb263e1fa13f8d0689dd3659abd9ee169c0d0df146"
+      }
+    },
+    {
+      "id": "C04",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "缺 score 不得判 PASS",
+      "rule_id": "R-DRIFT-THRESHOLD",
+      "rule_version": "1.0.0",
+      "params": {
+        "threshold": 1.5
+      },
+      "input": {
+        "ratio": 3
+      },
+      "expected": {
+        "verdict": "INCONCLUSIVE",
+        "score": 0,
+        "output_digest": "af18bc335167a1483e7937d83bb313afcefdca36b995fe93ed52bc0eb45c4d3c"
+      }
+    },
+    {
+      "id": "C05",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "缺 threshold 不得判 PASS",
+      "rule_id": "R-DRIFT-THRESHOLD",
+      "rule_version": "1.0.0",
+      "params": {},
+      "input": {
+        "score": 9.9
+      },
+      "expected": {
+        "verdict": "INCONCLUSIVE",
+        "score": 0,
+        "output_digest": "af18bc335167a1483e7937d83bb313afcefdca36b995fe93ed52bc0eb45c4d3c"
+      }
+    },
+    {
+      "id": "C06",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "边界含等号：3.0 >= 3.0 → FAIL",
+      "rule_id": "R-BOUNDARY-INCLUSIVE",
+      "rule_version": "1.0.0",
+      "params": {
+        "threshold": 3.0
+      },
+      "input": {
+        "score": 3.0
+      },
+      "expected": {
+        "verdict": "FAIL",
+        "score": 3.0,
+        "output_digest": "b23eddb770b1495752831319923ba3f6393781126b06376394c55d0944f356ee"
+      }
+    },
+    {
+      "id": "C07",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "边界含等号：2.999 → PASS",
+      "rule_id": "R-BOUNDARY-INCLUSIVE",
+      "rule_version": "1.0.0",
+      "params": {
+        "threshold": 3.0
+      },
+      "input": {
+        "score": 2.999
+      },
+      "expected": {
+        "verdict": "PASS",
+        "score": 2.999,
+        "output_digest": "5698b973df02a050a71d9c348bd82117a657e4c4e8c058f7780f78a5137c3b4e"
+      }
+    },
+    {
+      "id": "C08",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "命中工具黑名单",
+      "rule_id": "R-DENYLIST-MATCH",
+      "rule_version": "1.0.0",
+      "params": {
+        "denylist": [
+          "shell.exec",
+          "fs.write"
+        ]
+      },
+      "input": {
+        "tools": [
+          "http.get",
+          "shell.exec"
+        ]
+      },
+      "expected": {
+        "verdict": "FAIL",
+        "score": 1,
+        "output_digest": "a9ae482ff0714488d92a4281b0cbbdd133462b5fa4fb2c66095c4beeee7ba12f"
+      }
+    },
+    {
+      "id": "C09",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "未命中黑名单",
+      "rule_id": "R-DENYLIST-MATCH",
+      "rule_version": "1.0.0",
+      "params": {
+        "denylist": [
+          "shell.exec"
+        ]
+      },
+      "input": {
+        "tools": [
+          "http.get"
+        ]
+      },
+      "expected": {
+        "verdict": "PASS",
+        "score": 0,
+        "output_digest": "13a89723f6692b12ef96b2caef0a42502926ad8511c080e69c1f880c41675bf8"
+      }
+    },
+    {
+      "id": "C10",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "速率超限",
+      "rule_id": "R-RATE-LIMIT",
+      "rule_version": "1.0.0",
+      "params": {
+        "limit": 100
+      },
+      "input": {
+        "count": 101
+      },
+      "expected": {
+        "verdict": "FAIL",
+        "score": 101,
+        "output_digest": "7c9311a2a2ef67e71d379fa304af808f30a2d6b876a0401cc4651a5ecee20df6"
+      }
+    },
+    {
+      "id": "C11",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "速率恰好等于限值（不算超）",
+      "rule_id": "R-RATE-LIMIT",
+      "rule_version": "1.0.0",
+      "params": {
+        "limit": 100
+      },
+      "input": {
+        "count": 100
+      },
+      "expected": {
+        "verdict": "PASS",
+        "score": 100,
+        "output_digest": "258b51160dc6e9ae00630b6eb04061d62b45c214d5781dee1d5c1067ea5b34fb"
+      }
+    },
+    {
+      "id": "C12",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "必需字段齐全",
+      "rule_id": "R-REQUIRED-FIELD",
+      "rule_version": "1.0.0",
+      "params": {
+        "required": [
+          "agent_id",
+          "trace_id"
+        ]
+      },
+      "input": {
+        "agent_id": "a-1",
+        "trace_id": "t-9"
+      },
+      "expected": {
+        "verdict": "PASS",
+        "score": 0,
+        "output_digest": "1a225b9b44bb337bf5ea8e9f6debde6208f82fc01a45ed4095cfdde3d914ca80"
+      }
+    },
+    {
+      "id": "C13",
+      "category": "verdict",
+      "level": "CL2",
+      "description": "必需字段缺失 → INCONCLUSIVE",
+      "rule_id": "R-REQUIRED-FIELD",
+      "rule_version": "1.0.0",
+      "params": {
+        "required": [
+          "agent_id",
+          "trace_id"
+        ]
+      },
+      "input": {
+        "agent_id": "a-1"
+      },
+      "expected": {
+        "verdict": "INCONCLUSIVE",
+        "score": 1,
+        "output_digest": "318dad72e1c0d373f92333b43ab9dcce2eadfa58a33b080d24d55f8d6d64fde3"
+      }
+    },
+    {
+      "id": "D01",
+      "category": "signature",
+      "level": "CL3",
+      "description": "双签快照载荷（干预方）（种子 #1）",
+      "seed_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "snapshot_id": "s-001",
+        "tier": "L2",
+        "ts": "2026-11-02T09:00:00Z"
+      },
+      "expected": {
+        "pubkey_hex": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+        "did_key": "did:key:z6MktULudTtAsAhRegYPiZ6631RV3viv12qd4GQF8z1xB22S",
+        "message_sha256": "cc7db83bab5ce6c822b4b84a06dea6c03bc3216cea10e940c747d549fe2b4a63",
+        "signature_hex": "eb276591c84289989a78391115164c24b8b5bfad918ccae18748bbc7ca968d3592b076ca8590e82df450a2dc36000f85771e81b460a5b00dbd3664700682750b"
+      }
+    },
+    {
+      "id": "D02",
+      "category": "signature",
+      "level": "CL3",
+      "description": "证据件载荷（种子 #1）",
+      "seed_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "artifact_id": "e-001",
+        "output": {
+          "verdict": "FAIL",
+          "score": 2.0
+        }
+      },
+      "expected": {
+        "pubkey_hex": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+        "did_key": "did:key:z6MktULudTtAsAhRegYPiZ6631RV3viv12qd4GQF8z1xB22S",
+        "message_sha256": "848acd4524cf3e6d78c8a3fccfd3b75db14843c1ebd5144f182cbd6b590b4ba7",
+        "signature_hex": "a2afa0268306c72108fdc7cbe934a3c11e7f3c27c0ac6ee92724065ac69194821a362318695cd669f8d9b005e10cded5e45df0d2e2925f84b64c5b0af952a80a"
+      }
+    },
+    {
+      "id": "D03",
+      "category": "signature",
+      "level": "CL3",
+      "description": "含中文载荷（种子 #1）",
+      "seed_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "主体": "受控主体-甲",
+        "动作": "暂停",
+        "等级": "L3"
+      },
+      "expected": {
+        "pubkey_hex": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+        "did_key": "did:key:z6MktULudTtAsAhRegYPiZ6631RV3viv12qd4GQF8z1xB22S",
+        "message_sha256": "f6987966ddc482c25d752d0d53429f47bb7c6abd6d6a599e80107651e09c902b",
+        "signature_hex": "2d160b60a2ca2f9c062dade69cb2f5ddc342afaab5ea61b0a89fbb99e5b758f9ce36e15190710196173d23c0bf950c9b5ff68d8f9813dff06a7aa91a34be7b05"
+      }
+    },
+    {
+      "id": "D04",
+      "category": "signature",
+      "level": "CL3",
+      "description": "双签快照载荷（干预方）（种子 #2）",
+      "seed_hex": "2222222222222222222222222222222222222222222222222222222222222222",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "snapshot_id": "s-001",
+        "tier": "L2",
+        "ts": "2026-11-02T09:00:00Z"
+      },
+      "expected": {
+        "pubkey_hex": "a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0",
+        "did_key": "did:key:z6MkqGC3nWZhYieEVTVDKW5v588CiGfsDSmRVG9ZwwWTvLSK",
+        "message_sha256": "cc7db83bab5ce6c822b4b84a06dea6c03bc3216cea10e940c747d549fe2b4a63",
+        "signature_hex": "7c2f1880ab09e9817fc9bdaae4d9be1b6eb7b80979cbfdaca1f3cadd4f4353b25bc4dd02bbf078aa56a459790a5279115b732cb18e4805c09b6ba2b5d6dbc80e"
+      }
+    },
+    {
+      "id": "D05",
+      "category": "signature",
+      "level": "CL3",
+      "description": "证据件载荷（种子 #2）",
+      "seed_hex": "2222222222222222222222222222222222222222222222222222222222222222",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "artifact_id": "e-001",
+        "output": {
+          "verdict": "FAIL",
+          "score": 2.0
+        }
+      },
+      "expected": {
+        "pubkey_hex": "a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0",
+        "did_key": "did:key:z6MkqGC3nWZhYieEVTVDKW5v588CiGfsDSmRVG9ZwwWTvLSK",
+        "message_sha256": "848acd4524cf3e6d78c8a3fccfd3b75db14843c1ebd5144f182cbd6b590b4ba7",
+        "signature_hex": "2bd747995148c3017083c05100f4e46039f462b7294f426d0b36f254d1b55127429d835f0d53823d8bcfb16610ddcf8ee8da659d49f2a75472ffe42867aa5905"
+      }
+    },
+    {
+      "id": "D06",
+      "category": "signature",
+      "level": "CL3",
+      "description": "含中文载荷（种子 #2）",
+      "seed_hex": "2222222222222222222222222222222222222222222222222222222222222222",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "主体": "受控主体-甲",
+        "动作": "暂停",
+        "等级": "L3"
+      },
+      "expected": {
+        "pubkey_hex": "a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0",
+        "did_key": "did:key:z6MkqGC3nWZhYieEVTVDKW5v588CiGfsDSmRVG9ZwwWTvLSK",
+        "message_sha256": "f6987966ddc482c25d752d0d53429f47bb7c6abd6d6a599e80107651e09c902b",
+        "signature_hex": "8e3fc23d8f75663d3fa55c67a1f0e5cca00f0b310b41dc5eb664e016f729b59d4308b5b30d0e9fb576010582c36441cc42c91f5e741d21b184cb13dc8c031b0a"
+      }
+    },
+    {
+      "id": "D07",
+      "category": "signature",
+      "level": "CL3",
+      "description": "双签快照载荷（干预方）（种子 #3）",
+      "seed_hex": "3333333333333333333333333333333333333333333333333333333333333333",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "snapshot_id": "s-001",
+        "tier": "L2",
+        "ts": "2026-11-02T09:00:00Z"
+      },
+      "expected": {
+        "pubkey_hex": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+        "did_key": "did:key:z6Mkg49NtQR2LyYRDCQFK4w1VVHqhypZSSRo7HsyuN7SV7v5",
+        "message_sha256": "cc7db83bab5ce6c822b4b84a06dea6c03bc3216cea10e940c747d549fe2b4a63",
+        "signature_hex": "39bf1848659d4b3d718efc8ca0c4e598865403d23e6342aa8c7895c6e321e6b3d89a1517323eb0f349d1f753a690e194bffc73bd05a17198a53c5d9003e6770c"
+      }
+    },
+    {
+      "id": "D08",
+      "category": "signature",
+      "level": "CL3",
+      "description": "证据件载荷（种子 #3）",
+      "seed_hex": "3333333333333333333333333333333333333333333333333333333333333333",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "artifact_id": "e-001",
+        "output": {
+          "verdict": "FAIL",
+          "score": 2.0
+        }
+      },
+      "expected": {
+        "pubkey_hex": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+        "did_key": "did:key:z6Mkg49NtQR2LyYRDCQFK4w1VVHqhypZSSRo7HsyuN7SV7v5",
+        "message_sha256": "848acd4524cf3e6d78c8a3fccfd3b75db14843c1ebd5144f182cbd6b590b4ba7",
+        "signature_hex": "ea42371181085ae2063c54ee5c47c12d2b2748452f208dbac7f3c3fc1b5a74fc3d07788aee488cce75ba6517da106a2bddbeb7e549d330e76c54b7d72e691402"
+      }
+    },
+    {
+      "id": "D09",
+      "category": "signature",
+      "level": "CL3",
+      "description": "含中文载荷（种子 #3）",
+      "seed_hex": "3333333333333333333333333333333333333333333333333333333333333333",
+      "domain": "DVEF-001-v1",
+      "payload": {
+        "主体": "受控主体-甲",
+        "动作": "暂停",
+        "等级": "L3"
+      },
+      "expected": {
+        "pubkey_hex": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+        "did_key": "did:key:z6Mkg49NtQR2LyYRDCQFK4w1VVHqhypZSSRo7HsyuN7SV7v5",
+        "message_sha256": "f6987966ddc482c25d752d0d53429f47bb7c6abd6d6a599e80107651e09c902b",
+        "signature_hex": "db7fdbeea34d8585e1f6afa052031cc65cc49ba7f08c7bfd1c83235741eb37ce0f106a868d3ec9445ca665623f4d4be672f6e7c876f736cfe41879a27b672e0d"
+      }
+    },
+    {
+      "id": "E01",
+      "category": "negative",
+      "level": "negative",
+      "description": "篡改判定输出后摘要不符",
+      "target": "C01",
+      "mutation": "output.score 由 2.0 改为 1.0",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/output/score",
+        "value": 1.0
+      },
+      "expected": {
+        "valid": false,
+        "reason": "digest_mismatch"
+      }
+    },
+    {
+      "id": "E02",
+      "category": "negative",
+      "level": "negative",
+      "description": "篡改输入后 inputs 摘要不符",
+      "target": "B01",
+      "mutation": "behavior 改为 benign",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/input/behavior",
+        "value": "benign"
+      },
+      "expected": {
+        "valid": false,
+        "reason": "digest_mismatch"
+      }
+    },
+    {
+      "id": "E03",
+      "category": "negative",
+      "level": "negative",
+      "description": "规范化时插入空格",
+      "target": "A02",
+      "mutation": "在 , 后插入空格",
+      "mutation_spec": {
+        "op": "insert",
+        "path": "/canonical",
+        "at": "after_first_comma",
+        "value": " "
+      },
+      "expected": {
+        "valid": false,
+        "reason": "canonical_mismatch"
+      }
+    },
+    {
+      "id": "E04",
+      "category": "negative",
+      "level": "negative",
+      "description": "规范化时保留 1.0 小数尾",
+      "target": "A03",
+      "mutation": "1 写成 1.0",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/canonical",
+        "find": ":1}",
+        "value": ":1.0}"
+      },
+      "expected": {
+        "valid": false,
+        "reason": "canonical_mismatch"
+      }
+    },
+    {
+      "id": "E05",
+      "category": "negative",
+      "level": "negative",
+      "description": "科学计数缺指数符号",
+      "target": "A06",
+      "mutation": "1e+21 写成 1e21",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/canonical",
+        "find": "1e+21",
+        "value": "1e21"
+      },
+      "expected": {
+        "valid": false,
+        "reason": "canonical_mismatch"
+      }
+    },
+    {
+      "id": "E06",
+      "category": "negative",
+      "level": "negative",
+      "description": "域分隔前缀错误",
+      "target": "D01",
+      "mutation": "domain 改为 DVEF-001-v2",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/domain",
+        "value": "DVEF-001-v2"
+      },
+      "expected": {
+        "valid": false,
+        "reason": "signature_invalid"
+      }
+    },
+    {
+      "id": "E07",
+      "category": "negative",
+      "level": "negative",
+      "description": "用另一把私钥签名",
+      "target": "D01",
+      "mutation": "seed 换成 44*32",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/signer_seed_hex",
+        "value": "4444444444444444444444444444444444444444444444444444444444444444"
+      },
+      "expected": {
+        "valid": false,
+        "reason": "signature_invalid"
+      }
+    },
+    {
+      "id": "E08",
+      "category": "negative",
+      "level": "negative",
+      "description": "载荷被改一字节",
+      "target": "D02",
+      "mutation": "score 2.0 → 2.5",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/payload/output/score",
+        "value": 2.5
+      },
+      "expected": {
+        "valid": false,
+        "reason": "signature_invalid"
+      }
+    },
+    {
+      "id": "E09",
+      "category": "negative",
+      "level": "negative",
+      "description": "缺字段却判 PASS",
+      "target": "C04",
+      "mutation": "verdict 写成 PASS",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/output/verdict",
+        "value": "PASS"
+      },
+      "expected": {
+        "valid": false,
+        "reason": "verdict_violation"
+      }
+    },
+    {
+      "id": "E10",
+      "category": "negative",
+      "level": "negative",
+      "description": "规则版本不在册",
+      "target": "C01",
+      "mutation": "rule_version 改为 9.9.9",
+      "mutation_spec": {
+        "op": "replace",
+        "path": "/rule_version",
+        "value": "9.9.9"
+      },
+      "expected": {
+        "valid": false,
+        "reason": "version_mismatch"
+      }
+    }
+  ],
+  "verification_instructions": [
+    "1. 对每个 canonical 向量，用 RFC 8785 规范化后逐字节比较 expected.canonical",
+    "2. 对 digest 向量，计算 SHA-256(canonical_json(input)) 与 expected.digest 比较",
+    "3. 对 verdict 向量，按其 rule_id/rule_version 与 params 执行规则，比较 verdict/score 及 output_digest",
+    "4. 对 signature 向量，用 seed_hex 派生私钥（或用 expected.pubkey_hex 验签）校验签名",
+    "5. 对 negative 向量，构造对应篡改，实施必须判定为无效（valid=false）",
+    "判定通过条件：全部向量一致；任何一条不一致即视为不满足本规范的一致性等级"
+  ]
+}
