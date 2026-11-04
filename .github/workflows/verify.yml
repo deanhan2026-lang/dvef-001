@@ -31,3 +31,6 @@ jobs:
 
       - name: Node 复算（第二语言交叉核对）
         run: node verify_vectors_node.mjs --vectors vectors_v0.2.json --reverse
+
+      - name: 判定单元复算（真实事故脱敏样例，含逐条反向测试）
+        run: python verify_cases.py --json cases/cases_v1.json

@@ -1,0 +1,155 @@
+{
+  "spec": "DVEF-001",
+  "spec_version": "0.3",
+  "title": "真实事故 → DVEF 判定单元（脱敏样例）",
+  "count": 3,
+  "demo_key_notice": "签名使用固定演示密钥 seed=SHA-256('DVEF-001-CASE-DEMO-KEY')，仅用于证明格式可复算，不构成任何身份声明或组织背书。",
+  "cases": [
+    {
+      "unit": {
+        "spec": "DVEF-001",
+        "spec_version": "0.3",
+        "verdict_id": "c1a7f3e0-1111-4a01-9f10-000000000001",
+        "rule_id": "R-DENYLIST-MATCH",
+        "rule_version": "1.0.0",
+        "inputs": {
+          "agent_id": "agent-redacted-A",
+          "trace_id": "trace-2026-09-14-0007",
+          "tools": [
+            "http.get",
+            "shell.exec"
+          ],
+          "window_sec": 300
+        },
+        "inputs_digest": "sha256:aa3962928ffadaca95ede5dd5fa36b4e25009fe00dc5eef7907a77474093ae33",
+        "params": {
+          "denylist": [
+            "shell.exec",
+            "fs.write"
+          ]
+        },
+        "params_digest": "sha256:a4b58f414a31627e36365bf623866a3125337f1c37d29566c39ffe6317f370d8",
+        "output": {
+          "verdict": "FAIL",
+          "score": 1,
+          "rule_id": "R-DENYLIST-MATCH",
+          "rule_version": "1.0.0"
+        },
+        "output_digest": "sha256:a9ae482ff0714488d92a4281b0cbbdd133462b5fa4fb2c66095c4beeee7ba12f",
+        "produced_by": "nyx-windows / ANIMA agent v1",
+        "produced_at": "2026-09-14T02:11:07Z",
+        "environment": {
+          "python": "3.14.3",
+          "platform": "Windows-11-10.0.26200",
+          "locale_independent": true
+        },
+        "signature": {
+          "alg": "Ed25519",
+          "domain": "DVEF-001-v1",
+          "pubkey": "85aecd53eb43dbe66a058da5ab4ba007838031089e405ade62071ef32a2bde95",
+          "sig": "70e5f5af8ae52153632b927b9229ce60a5ea76ce176f884c637c1deaf756ab571d740e5271c056671378bfcc6d2e752b1b1c6f1e099c49caa78df6d528167d0e",
+          "message_sha256": "524121a5bf60a9bbf008af52c9981c2b85dd33ebf388767a54e98c943f5bbd50"
+        }
+      },
+      "case_meta": {
+        "title": "越权工具调用：命中禁用工具集",
+        "incident": "智能体在一次任务中调用了被明确禁用的 shell 执行能力；判定输入取自运行时工具调用记录。",
+        "desensitization": "脱敏点：主体名/轨迹号替换为占位符；窗口与工具集保留原值（判定所必需）。"
+      }
+    },
+    {
+      "unit": {
+        "spec": "DVEF-001",
+        "spec_version": "0.3",
+        "verdict_id": "c1a7f3e0-2222-4a02-9f20-000000000002",
+        "rule_id": "R-DRIFT-THRESHOLD",
+        "rule_version": "1.0.0",
+        "inputs": {
+          "score": 21,
+          "asset": "square-token-table",
+          "detected_at": "2026-10-14T00:00:00Z",
+          "rotated_at": "2026-11-04T01:02:38Z"
+        },
+        "inputs_digest": "sha256:0a68f7fb441c269bf8d90e122dd566e73eb8169a2edc5b3c1e2a163463b5fef5",
+        "params": {
+          "threshold": 7
+        },
+        "params_digest": "sha256:20f51235fd186d1460f5e41bb73136a5bb010915fdbad431998ff9156619d75e",
+        "output": {
+          "verdict": "FAIL",
+          "score": 21,
+          "rule_id": "R-DRIFT-THRESHOLD",
+          "rule_version": "1.0.0"
+        },
+        "output_digest": "sha256:b05d2663a9277e52cba7be8ce17753b1e59a7dac80676a207fa77f65a756ba02",
+        "produced_by": "nyx-windows / ANIMA agent v1",
+        "produced_at": "2026-11-04T01:05:00Z",
+        "environment": {
+          "python": "3.14.3",
+          "platform": "Windows-11-10.0.26200",
+          "locale_independent": true
+        },
+        "signature": {
+          "alg": "Ed25519",
+          "domain": "DVEF-001-v1",
+          "pubkey": "85aecd53eb43dbe66a058da5ab4ba007838031089e405ade62071ef32a2bde95",
+          "sig": "2529c69690e82323613d7042f2f2217ea019b861c6370444fa6c0eabaa2bd716a109826421ce14a9e2b419997b93556996da55fbf8178b93b9e6298132b0f405",
+          "message_sha256": "4326225ff6d73ac182a99ce33bfe6769a096edbf7c0f785c1d0060fe24efc79f"
+        }
+      },
+      "case_meta": {
+        "title": "凭据暴露时长：超出可接受窗口",
+        "incident": "某节点令牌以明文形式存在于共享位置，暴露时长按「首次可检出时间 → 轮换完成时间」计得 21 天；该数值超过组织设定的 7 天上限。",
+        "desensitization": "脱敏点：不含任何令牌值、不含具体路径；只保留时长与时间边界（判定所必需）。暴露起点按「该明文表最后一次写入时间」计，保守取值。"
+      }
+    },
+    {
+      "unit": {
+        "spec": "DVEF-001",
+        "spec_version": "0.3",
+        "verdict_id": "c1a7f3e0-3333-4a03-9f30-000000000003",
+        "rule_id": "R-SOURCE-AGREEMENT",
+        "rule_version": "1.0.0",
+        "inputs": {
+          "source_values": {
+            "client_declared_from": "nyx-windows",
+            "token_bound_identity": "verifier-alpha"
+          },
+          "sample_window": "2026-10-12T17:01:37Z"
+        },
+        "inputs_digest": "sha256:86307d92753e172806b4c66a226677c28ca7e9188a1855511f78daedf8630bfc",
+        "params": {
+          "min_sources": 2
+        },
+        "params_digest": "sha256:359e1883eb3ee2109d0b7f60b2af4ecb99a4ec69e323eceda7ff5852a23b33c3",
+        "output": {
+          "verdict": "INCONCLUSIVE",
+          "score": 0,
+          "rule_id": "R-SOURCE-AGREEMENT",
+          "rule_version": "1.0.0",
+          "reason_code": "IN-SOURCE-CONFLICT"
+        },
+        "output_digest": "sha256:a7f8550db4fa9c217f6915477ad1849ef3013ddd59da8c9a0349baab0f4363a0",
+        "produced_by": "nyx-windows / ANIMA agent v1",
+        "produced_at": "2026-11-04T04:15:00Z",
+        "environment": {
+          "python": "3.14.3",
+          "platform": "Windows-11-10.0.26200",
+          "locale_independent": true
+        },
+        "signature": {
+          "alg": "Ed25519",
+          "domain": "DVEF-001-v1",
+          "pubkey": "85aecd53eb43dbe66a058da5ab4ba007838031089e405ade62071ef32a2bde95",
+          "sig": "eb66b875ce92477925eaea19459f00ea81c2fc3f99fe540637394a8222768cb5b037daace7d5fca350d9adcb8f16e47363a92bf75d8cc00f919299dd01c49d03",
+          "message_sha256": "adf8a144aa5f92382dad154ecb9998d6c64d5bae6a43ef47efbc6eb517c08a80"
+        }
+      },
+      "case_meta": {
+        "title": "身份不绑定令牌：两个真源给出不同主体",
+        "incident": "服务端以客户端自报的发送者字段作为身份，令牌仅做准入校验。于是同一令牌可以声明成另一个主体；两个真源（客户端自报主体 / 令牌绑定主体）给出不同值，按格式必须判 INCONCLUSIVE 而不是任一二元结论。",
+        "desensitization": "脱敏点：只保留两个主体标识与时间点，不含令牌、不含 IP。此例是「真源冲突」的标准形态：不得采信任一方，必须判 INCONCLUSIVE/IN-SOURCE-CONFLICT。"
+      }
+    }
+  ]
+}
