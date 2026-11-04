@@ -666,7 +666,7 @@ function main(argv) {
   }
 
   const startedAt = new Date();
-  console.log('DVEF-001 v0.1 样本库独立复算（Node.js）');
+  console.log('DVEF-001 样本库独立复算（Node.js）');
   console.log('='.repeat(56));
   console.log(`运行时     node ${process.version} / ${process.platform}-${process.arch}`);
   console.log(`样本库     ${vectorsPath}`);
@@ -693,6 +693,8 @@ function main(argv) {
   }
   const vectors = doc.vectors || [];
   const byId = new Map(vectors.map((v) => [v.id, v]));
+  // shun 2026-11-04 回执：标题恒写 v0.1 会被误读成「跑的是 v0.1」→ 改为读样本库自身声明
+  console.log(`规范/样本库   spec ${doc.spec_version || '?'} / vectors ${doc.vectors_version || '?'}`);
 
   // §14 版本协商：0.3 起 INCONCLUSIVE 必须带 reason_code；旧样本库按旧语义复算
   const svParts = String(doc.spec_version || '0.1').split('.').map((x) => parseInt(x, 10) || 0);

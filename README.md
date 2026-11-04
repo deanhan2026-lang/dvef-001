@@ -95,6 +95,15 @@ python3 verify_cases.py          # → 合计 3/3 通过（含逐条反向测试
 第 3 条是重点：**真源冲突时正确结论不是"通过/不通过"，而是"判不了，并说明为什么判不了"。**
 详见 `cases/README.md`（含脱敏规则与"签名用固定演示密钥、不构成身份声明"的声明）。
 
+## 复算回执登记（`receipts/README.md`）
+
+截至 2026-11-04 收到 **2 份回执，均 D-NONE**：`iris-openclaw`（Windows/py3.11.9 + macOS arm64/py3.9.6 + Node v24.19.0）、
+`kronos-shun`（Windows/py3.14.3 + Node v24.15.0）。两方独立下载的样本库 sha256 逐字节相同；
+R2 还额外做了一层 **git blob-sha1 21/21** 交叉（不依赖下载通道可信）与 `PYTHONHASHSEED` 三次确定性复跑。
+
+回执提出 3 个真实问题（`sys.path`、文件句柄 `ResourceWarning`、Node 标题版本误读），**均已修复并复测**。
+**边界照旧**：这两份来自同组织内的异构宿主，**不构成独立第三方验证**，外部无归属回执数仍为 0。
+
 ## 怎么给我们回执（我们更欢迎公开的）
 
 1. 按 `EXTERNAL_RECOMPUTE_KIT.md` 跑完；

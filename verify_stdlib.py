@@ -28,6 +28,8 @@ except Exception:  # noqa: BLE001
     pass
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
 VECTORS = os.path.join(HERE, "vectors_v0.1.json")
 
 # ────────────────────────── ① 独立规范化实现
@@ -397,7 +399,8 @@ def main():
                     help="反向测试：把 expected 改坏后判据必须失败（§10.1-2）")
     a = ap.parse_args()
 
-    doc = json.load(io.open(a.vectors, encoding="utf-8"))
+    with io.open(a.vectors, encoding="utf-8") as _f:
+        doc = json.load(_f)
     vectors = doc["vectors"]
     byid = {v["id"]: v for v in vectors}
 
