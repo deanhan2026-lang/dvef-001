@@ -1,0 +1,2 @@
+# sha256-verified repo: no EOL/encoding conversion (else MANIFEST becomes platform-dependent)
+* -text
